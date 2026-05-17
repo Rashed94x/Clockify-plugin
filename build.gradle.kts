@@ -7,6 +7,11 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
+kotlin {
+    // Target JVM 17 — the minimum JVM required by IntelliJ Platform 2024.1
+    jvmToolchain(17)
+}
+
 dependencies {
     testImplementation("junit:junit:4.13.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
@@ -16,5 +21,13 @@ dependencies {
         intellijIdea("2025.2.6.2")
         bundledPlugin("Git4Idea")
         testFramework(TestFrameworkType.Platform)
+    }
+}
+
+tasks {
+    patchPluginXml {
+        // Compatible with IntelliJ Platform 2024.1 (build 241) and all later versions
+        sinceBuild.set("241")
+        untilBuild.set("")
     }
 }

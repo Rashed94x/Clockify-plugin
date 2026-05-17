@@ -30,5 +30,11 @@
             displayType="BALLOON"
             isLogByDefault="false"/>
 
+        <toolWindow
+            id="Clockify"
+            anchor="right"
+            factoryClass="com.github.rashed94x.clockifyplugin.toolwindow.ClockifyToolWindowFactory"
+            secondary="false"/>
+
     </extensions>
 </idea-plugin>

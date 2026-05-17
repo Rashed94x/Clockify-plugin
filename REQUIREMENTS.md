@@ -64,7 +64,7 @@ The dialog pre-populates the following from VCS context:
 
 ---
 
-## 3. API Integration
+## 3. API Integration ✅ Implemented
 
 - All Clockify API calls use the token stored in global settings.
 - Endpoints used:
@@ -78,7 +78,7 @@ The dialog pre-populates the following from VCS context:
 
 ---
 
-## 4. Compatibility & Platform
+## 4. Compatibility & Platform ✅ Implemented
 
 - Built on the **IntelliJ Platform SDK** — no IDE-specific APIs.
 - Minimum supported IntelliJ Platform version: **2024.1** (to cover all
@@ -89,7 +89,22 @@ The dialog pre-populates the following from VCS context:
 
 ---
 
-## 5. Non-Goals (out of scope for v1)
+## 5. Tool Window ✅ Implemented
+
+- A **Clockify tool window** is available in the IDE sidebar (right side by default).
+- Contains a **Log Time…** button that opens the same dialog used after a commit
+  (`LogTimeDialog`), with an empty description field (no commit message context).
+- Displays the currently configured **workspace name** and **default project name**
+  beneath the button so the user can see their active context at a glance.
+- If no API token is configured, shows an inline prompt directing the user to
+  Settings → Tools → Clockify.
+- If a token exists but no workspace is selected, shows a similar prompt.
+- Panel content **refreshes automatically** each time the tool window is made
+  visible, so it always reflects the latest saved settings without an IDE restart.
+
+---
+
+## 6. Non-Goals (out of scope for v1)
 - Automatic timer start/stop (time is logged manually via the commit dialog only).
 - Tracking idle time or active coding time.
 - Multi-workspace time entries in a single submission.
