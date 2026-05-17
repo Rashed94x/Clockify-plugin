@@ -2,6 +2,7 @@ package com.github.rashed94x.clockifyplugin.settings
 
 import com.github.rashed94x.clockifyplugin.api.ClockifyClient
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBPasswordField
@@ -74,17 +75,18 @@ class ClockifySettingsConfigurable(private val project: Project) : Configurable 
             return
         }
         tokenStatus?.text = "Validating…"
+        val modality = ModalityState.defaultModalityState()
         ApplicationManager.getApplication().executeOnPooledThread {
             try {
                 val user = ClockifyClient(token).getUser()
-                ApplicationManager.getApplication().invokeLater {
+                ApplicationManager.getApplication().invokeLater({
                     tokenStatus?.text = "Connected as ${user.name} (${user.email})"
                     loadWorkspaces(token)
-                }
+                }, modality)
             } catch (e: Exception) {
-                ApplicationManager.getApplication().invokeLater {
+                ApplicationManager.getApplication().invokeLater({
                     tokenStatus?.text = "Error: ${e.message}"
-                }
+                }, modality)
             }
         }
     }
@@ -94,10 +96,11 @@ class ClockifySettingsConfigurable(private val project: Project) : Configurable 
         val savedWorkspaceId = savedState.workspaceId
         val savedProjectId = savedState.projectId
         comboStatus?.text = "Loading workspaces…"
+        val modality = ModalityState.defaultModalityState()
         ApplicationManager.getApplication().executeOnPooledThread {
             try {
                 val workspaces = ClockifyClient(token).getWorkspaces()
-                ApplicationManager.getApplication().invokeLater {
+                ApplicationManager.getApplication().invokeLater({
                     isUpdatingCombos = true
                     try {
                         val items = workspaces.map { WorkspaceItem(it.id, it.name) }.toTypedArray()
@@ -111,30 +114,31 @@ class ClockifySettingsConfigurable(private val project: Project) : Configurable 
                     (workspaceCombo?.selectedItem as? WorkspaceItem)?.let {
                         loadProjects(token, it.id, preselectId = savedProjectId)
                     }
-                }
+                }, modality)
             } catch (e: Exception) {
-                ApplicationManager.getApplication().invokeLater {
+                ApplicationManager.getApplication().invokeLater({
                     comboStatus?.text = "Failed to load workspaces: ${e.message}"
-                }
+                }, modality)
             }
         }
     }
 
     private fun loadProjects(token: String, workspaceId: String, preselectId: String?) {
+        val modality = ModalityState.defaultModalityState()
         ApplicationManager.getApplication().executeOnPooledThread {
             try {
                 val projects = ClockifyClient(token).getProjects(workspaceId)
-                ApplicationManager.getApplication().invokeLater {
+                ApplicationManager.getApplication().invokeLater({
                     val items = (listOf(ProjectItem("", "(none)")) +
                             projects.map { ProjectItem(it.id, it.name) }).toTypedArray()
                     projectCombo?.model = DefaultComboBoxModel(items)
                     val idx = if (preselectId != null) projects.indexOfFirst { it.id == preselectId } else -1
                     projectCombo?.selectedIndex = if (idx >= 0) idx + 1 else 0
-                }
+                }, modality)
             } catch (e: Exception) {
-                ApplicationManager.getApplication().invokeLater {
+                ApplicationManager.getApplication().invokeLater({
                     comboStatus?.text = "Failed to load projects: ${e.message}"
-                }
+                }, modality)
             }
         }
     }
