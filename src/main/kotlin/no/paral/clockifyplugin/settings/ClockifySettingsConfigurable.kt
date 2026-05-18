@@ -1,6 +1,6 @@
-package com.github.rashed94x.clockifyplugin.settings
+package no.paral.clockifyplugin.settings
 
-import com.github.rashed94x.clockifyplugin.api.ClockifyClient
+import no.paral.clockifyplugin.api.ClockifyClient
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.options.Configurable
@@ -9,18 +9,27 @@ import com.intellij.ui.components.JBPasswordField
 import com.intellij.ui.dsl.builder.COLUMNS_LARGE
 import com.intellij.ui.dsl.builder.columns
 import com.intellij.ui.dsl.builder.panel
+import com.intellij.openapi.ui.DialogPanel
+import com.intellij.ui.dsl.builder.MutableProperty
+import java.awt.BorderLayout
 import javax.swing.DefaultComboBoxModel
-import javax.swing.JComboBox
+import com.intellij.openapi.ui.ComboBox
 import javax.swing.JComponent
 import javax.swing.JLabel
+import javax.swing.JPanel
 
 class ClockifySettingsConfigurable(private val project: Project) : Configurable {
 
     private var tokenField: JBPasswordField? = null
     private var tokenStatus: JLabel? = null
-    private var workspaceCombo: JComboBox<WorkspaceItem>? = null
-    private var projectCombo: JComboBox<ProjectItem>? = null
+    private var workspaceCombo: ComboBox<WorkspaceItem>? = null
+    private var projectCombo: ComboBox<ProjectItem>? = null
     private var comboStatus: JLabel? = null
+    private var projectSettingsWrapper: JPanel? = null
+    private var outerPanel: JComponent? = null
+    private var hasValidToken = false
+    private var currentTrigger = ClockifyProjectSettings.LogTimeTrigger.AFTER_PUSH
+    private var projectDialogPanel: DialogPanel? = null
 
     // Prevents the workspace action listener from firing loadProjects during programmatic model updates
     private var isUpdatingCombos = false
@@ -30,8 +39,8 @@ class ClockifySettingsConfigurable(private val project: Project) : Configurable 
     override fun createComponent(): JComponent {
         val field = JBPasswordField()
         val tStatus = JLabel("")
-        val wCombo = JComboBox<WorkspaceItem>()
-        val pCombo = JComboBox<ProjectItem>()
+        val wCombo = ComboBox<WorkspaceItem>()
+        val pCombo = ComboBox<ProjectItem>()
         val cStatus = JLabel("")
 
         tokenField = field
@@ -46,7 +55,36 @@ class ClockifySettingsConfigurable(private val project: Project) : Configurable 
             loadProjects(currentToken() ?: return@addActionListener, selected.id, preselectId = null)
         }
 
-        return panel {
+        val projectPanel = panel {
+            group("Project Settings") {
+                row("Default Workspace:") { cell(wCombo).resizableColumn() }
+                row("Default Project:") { cell(pCombo).resizableColumn() }
+                row { cell(cStatus) }
+            }
+            group("Automatic Trigger") {
+                buttonsGroup("Show log time dialog:") {
+                    row {
+                        radioButton("After push", ClockifyProjectSettings.LogTimeTrigger.AFTER_PUSH)
+                            .comment("Recommended — triggers once per push")
+                    }
+                    row {
+                        radioButton("After commit", ClockifyProjectSettings.LogTimeTrigger.AFTER_COMMIT)
+                            .comment("Triggers after every commit")
+                    }
+                }.bind(
+                    object : MutableProperty<ClockifyProjectSettings.LogTimeTrigger> {
+                        override fun get() = currentTrigger
+                        override fun set(value: ClockifyProjectSettings.LogTimeTrigger) { currentTrigger = value }
+                    },
+                    ClockifyProjectSettings.LogTimeTrigger::class.java
+                )
+            }
+
+        }.also { projectDialogPanel = it }
+        val wrapper = JPanel(BorderLayout()).apply { add(projectPanel, BorderLayout.CENTER) }
+        projectSettingsWrapper = wrapper
+
+        val root = panel {
             group("API Token") {
                 row("API Token:") {
                     cell(field)
@@ -55,19 +93,42 @@ class ClockifySettingsConfigurable(private val project: Project) : Configurable 
                 }
                 row {
                     button("Validate Token") { onValidate() }
-                    cell(tStatus)
+                    button("Remove Token") { onRemoveToken() }
                 }
+                row { cell(tStatus) }
             }
-            group("Project Settings") {
-                row("Default Workspace:") { cell(wCombo).resizableColumn() }
-                row("Default Project:") { cell(pCombo).resizableColumn() }
-                row { cell(cStatus) }
-            }
-        }.also { reset() }
+            row { cell(wrapper).resizableColumn() }
+        }
+        outerPanel = root
+        return root.also { reset() }
     }
 
     private fun currentToken(): String? =
         tokenField?.password?.let { String(it) }?.trim()?.ifBlank { null }
+
+    private fun onRemoveToken() {
+        if (ClockifyCredentials.apiToken.isNullOrBlank()) {
+            tokenStatus?.text = "No token to remove."
+            return
+        }
+        ClockifyCredentials.apiToken = null
+        ClockifyProjectSettings.getInstance(project).state.apply {
+            workspaceId = ""; workspaceName = ""; projectId = ""; projectName = ""
+        }
+        tokenField?.text = ""
+        tokenStatus?.text = "Token removed."
+        workspaceCombo?.model = DefaultComboBoxModel()
+        projectCombo?.model = DefaultComboBoxModel()
+        comboStatus?.text = ""
+        hasValidToken = false
+        updateProjectSectionVisibility()
+    }
+
+    private fun updateProjectSectionVisibility() {
+        projectSettingsWrapper?.isVisible = hasValidToken
+        outerPanel?.revalidate()
+        outerPanel?.repaint()
+    }
 
     private fun onValidate() {
         val token = currentToken() ?: run {
@@ -81,6 +142,8 @@ class ClockifySettingsConfigurable(private val project: Project) : Configurable 
                 val user = ClockifyClient(token).getUser()
                 ApplicationManager.getApplication().invokeLater({
                     tokenStatus?.text = "Connected as ${user.name} (${user.email})"
+                    hasValidToken = true
+                    updateProjectSectionVisibility()
                     loadWorkspaces(token)
                 }, modality)
             } catch (e: Exception) {
@@ -149,7 +212,8 @@ class ClockifySettingsConfigurable(private val project: Project) : Configurable 
         val saved = ClockifyProjectSettings.getInstance(project).state
         val wId = (workspaceCombo?.selectedItem as? WorkspaceItem)?.id ?: ""
         val pId = (projectCombo?.selectedItem as? ProjectItem)?.id ?: ""
-        return saved.workspaceId != wId || saved.projectId != pId
+        if (saved.workspaceId != wId || saved.projectId != pId) return true
+        return saved.logTimeTrigger != currentTrigger.name
     }
 
     override fun apply() {
@@ -161,14 +225,25 @@ class ClockifySettingsConfigurable(private val project: Project) : Configurable 
         settings.state.workspaceName = wItem?.name ?: ""
         settings.state.projectId = if (pItem?.id.isNullOrBlank()) "" else pItem!!.id
         settings.state.projectName = if (pItem?.id.isNullOrBlank()) "" else pItem!!.name
+        settings.state.logTimeTrigger = currentTrigger.name
     }
 
     override fun reset() {
         tokenField?.text = ClockifyCredentials.apiToken ?: ""
         tokenStatus?.text = ""
+        hasValidToken = !ClockifyCredentials.apiToken.isNullOrBlank()
         val token = currentToken()
         if (token != null) loadWorkspaces(token)
         else comboStatus?.text = "Enter and validate your API token first."
+        currentTrigger = try {
+            ClockifyProjectSettings.LogTimeTrigger.valueOf(
+                ClockifyProjectSettings.getInstance(project).state.logTimeTrigger
+            )
+        } catch (_: IllegalArgumentException) {
+            ClockifyProjectSettings.LogTimeTrigger.AFTER_PUSH
+        }
+        projectDialogPanel?.reset()  // syncs radio button UI to currentTrigger
+        updateProjectSectionVisibility()
     }
 
     override fun disposeUIResources() {
@@ -177,6 +252,9 @@ class ClockifySettingsConfigurable(private val project: Project) : Configurable 
         workspaceCombo = null
         projectCombo = null
         comboStatus = null
+        projectSettingsWrapper = null
+        outerPanel = null
+        projectDialogPanel = null
     }
 
     private data class WorkspaceItem(val id: String, val name: String) {

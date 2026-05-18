@@ -1,40 +1,37 @@
 <idea-plugin>
-    <id>com.github.rashed94x.clockifyplugin</id>
+    <id>no.paral.clockifyplugin</id>
     <name>Clockify</name>
-    <vendor>rashed94x</vendor>
+    <vendor>Paral</vendor>
     <description><![CDATA[
         Log time to Clockify directly from your JetBrains IDE.
         Configure your API token and default project in Settings → Tools → Clockify,
-        then log time after each commit via the automatic dialog.
+        then log time after each commit or push via the automatic dialog.
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
-    <depends optional="true">Git4Idea</depends>
+    <depends optional="true" config-file="git4idea.xml">Git4Idea</depends>
 
     <extensions defaultExtensionNs="com.intellij">
 
         <projectConfigurable
-            parentId="tools"
-            instance="com.github.rashed94x.clockifyplugin.settings.ClockifySettingsConfigurable"
-            id="clockify.settings"
-            displayName="Clockify"/>
-
-        <projectService
-            serviceImplementation="com.github.rashed94x.clockifyplugin.settings.ClockifyProjectSettings"/>
-
-        <checkinHandlerFactory
-            implementation="com.github.rashed94x.clockifyplugin.vcs.ClockifyCheckinHandlerFactory"/>
+                parentId="tools"
+                instance="no.paral.clockifyplugin.settings.ClockifySettingsConfigurable"
+                id="clockify.settings"
+                displayName="Clockify"/>
 
         <notificationGroup
-            id="Clockify"
-            displayType="BALLOON"
-            isLogByDefault="false"/>
+                id="Clockify"
+                displayType="BALLOON"
+                isLogByDefault="false"
+                bundle="messages.ClockifyBundle"
+                key="notification.group.clockify"/>
 
         <toolWindow
-            id="Clockify"
-            anchor="right"
-            factoryClass="com.github.rashed94x.clockifyplugin.toolwindow.ClockifyToolWindowFactory"
-            secondary="false"/>
+                id="Clockify"
+                anchor="right"
+                icon="/icons/MyIcon.svg"
+                factoryClass="no.paral.clockifyplugin.toolwindow.ClockifyToolWindowFactory"
+                secondary="false"/>
 
     </extensions>
 </idea-plugin>

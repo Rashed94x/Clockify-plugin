@@ -1,5 +1,6 @@
-package com.github.rashed94x.clockifyplugin.vcs
+package no.paral.clockifyplugin.vcs
 
+import no.paral.clockifyplugin.settings.ClockifyProjectSettings
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.vcs.CheckinProjectPanel
 import com.intellij.openapi.vcs.changes.CommitContext
@@ -12,6 +13,8 @@ class ClockifyCheckinHandlerFactory : CheckinHandlerFactory() {
         object : CheckinHandler() {
             override fun checkinSuccessful() {
                 val project = panel.project
+                val trigger = ClockifyProjectSettings.getInstance(project).state.logTimeTrigger
+                if (trigger != ClockifyProjectSettings.LogTimeTrigger.AFTER_COMMIT.name) return
                 val commitMessage = panel.commitMessage
                 ApplicationManager.getApplication().invokeLater {
                     LogTimeDialog(project, commitMessage).show()

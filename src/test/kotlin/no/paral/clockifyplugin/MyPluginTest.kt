@@ -1,4 +1,4 @@
-package com.github.rashed94x.clockifyplugin
+package no.paral.clockifyplugin
 
 import com.intellij.ide.highlighter.XmlFileType
 import com.intellij.psi.xml.XmlFile

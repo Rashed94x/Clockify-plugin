@@ -1,4 +1,4 @@
-package com.github.rashed94x.clockifyplugin.settings
+package no.paral.clockifyplugin.settings
 
 import com.intellij.credentialStore.CredentialAttributes
 import com.intellij.credentialStore.Credentials
@@ -8,7 +8,7 @@ import com.intellij.ide.passwordSafe.PasswordSafe
 object ClockifyCredentials {
 
     private val attributes = CredentialAttributes(
-        generateServiceName("ClockifyPlugin", "apiToken")
+        generateServiceName("no.paral.clockifyplugin", "apiToken")
     )
 
     var apiToken: String?

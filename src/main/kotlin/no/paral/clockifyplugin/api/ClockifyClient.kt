@@ -1,4 +1,4 @@
-package com.github.rashed94x.clockifyplugin.api
+package no.paral.clockifyplugin.api
 
 import kotlinx.serialization.json.Json
 import java.net.HttpURLConnection
