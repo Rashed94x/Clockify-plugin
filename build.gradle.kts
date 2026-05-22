@@ -29,7 +29,7 @@ tasks {
     patchPluginXml {
         // Compatible with IntelliJ Platform 2024.1 (build 241) and all later versions
         sinceBuild.set("241")
-        untilBuild.set("")
+        untilBuild.set(provider { null })
         changeNotes.set(provider {
             changelog.renderItem(
                 changelog.getOrNull(project.version.toString())
