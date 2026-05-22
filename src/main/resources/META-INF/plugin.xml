@@ -1,19 +1,54 @@
-<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.rashed94x.clockifyplugin</id>
-    <name>Clockify-plugin</name>
-    <vendor>rashed94x</vendor>
+    <id>no.paral.clockifyplugin</id>
+    <name>Clockify Integration</name>
+    <vendor url="https://github.com/Rashed94x/Clockify-plugin" email="rashed.rajab.rr@gmail.com">Paral</vendor>
     <description><![CDATA[
-        <p><b>Clockify-plugin</b> is a repository that provides a pure template to make it easier to create a new plugin project.</p>
-        <p>The main goal of this template is to speed up the setup phase of plugin development for both new and experienced developers by preconfiguring the project scaffold and CI, linking to the proper documentation pages, and keeping everything organized.</p>
+        <p>Log time to <a href="https://clockify.me">Clockify</a> directly from your JetBrains IDE — no context switching required.</p>
+
+        <h3>Features</h3>
+        <ul>
+            <li><b>Auto-prompt after push</b> — a dialog appears after each successful Git push so you can log time without breaking your flow.</li>
+            <li><b>Tool window</b> — log time at any moment from the Clockify sidebar panel.</li>
+            <li><b>Pre-filled from Git</b> — the time entry description is pre-populated with your latest commit message.</li>
+            <li><b>Workspace &amp; project picker</b> — select your workspace, project, and task from live dropdowns backed by the Clockify API.</li>
+            <li><b>Secure token storage</b> — your API token is stored in the IDE's built-in credential safe, never in plain text.</li>
+        </ul>
+
+        <h3>Getting started</h3>
+        <ol>
+            <li>Open <b>Settings → Tools → Clockify Integration</b>.</li>
+            <li>Paste your Clockify API token (found at <i>clockify.me → Profile → API</i>) and click <b>Validate</b>.</li>
+            <li>Select your default workspace and project.</li>
+            <li>Push a commit — the log-time dialog will appear automatically.</li>
+        </ol>
+
+        <p><i>This is an unofficial, community-made plugin. It is not affiliated with, endorsed by, or created by Clockify / CAKE.com.</i></p>
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
-
-    <resource-bundle>messages.MyBundle</resource-bundle>
+    <depends optional="true" config-file="git4idea.xml">Git4Idea</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.rashed94x.clockifyplugin.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-        <postStartupActivity implementation="com.github.rashed94x.clockifyplugin.startup.MyProjectActivity" />
+
+        <projectConfigurable
+                parentId="tools"
+                instance="no.paral.clockifyplugin.settings.ClockifySettingsConfigurable"
+                id="clockify.settings"
+                displayName="Clockify Integration"/>
+
+        <notificationGroup
+                id="Clockify"
+                displayType="BALLOON"
+                isLogByDefault="false"
+                bundle="messages.ClockifyBundle"
+                key="notification.group.clockify"/>
+
+        <toolWindow
+                id="Clockify"
+                anchor="right"
+                icon="/icons/MyIcon.svg"
+                factoryClass="no.paral.clockifyplugin.toolwindow.ClockifyToolWindowFactory"
+                secondary="false"/>
+
     </extensions>
 </idea-plugin>
