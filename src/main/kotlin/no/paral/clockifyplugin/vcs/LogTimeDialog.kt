@@ -14,9 +14,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.JBColor
-import com.intellij.ui.components.JBScrollPane
-import com.intellij.ui.components.JBTextArea
 import com.intellij.ui.components.JBTextField
+import com.intellij.ui.components.fields.ExpandableTextField
 import com.intellij.ui.dsl.builder.AlignX
 import com.intellij.ui.dsl.builder.panel
 import java.awt.event.HierarchyEvent
@@ -33,11 +32,8 @@ import javax.swing.SpinnerDateModel
 class LogTimeDialog(private val project: Project, commitMessage: String) : DialogWrapper(project) {
 
     private val titleField = JBTextField(formatBranchName(getBranchName(project)))
-    private val noteArea = JBTextArea(3, 40).apply {
-        text = commitMessage
-        lineWrap = true
-        wrapStyleWord = true
-    }
+    private val noteArea = ExpandableTextField().apply { text = commitMessage }
+
 
     private val startSpinner = JSpinner(
         SpinnerDateModel(Date(System.currentTimeMillis() - 3_600_000), null, null, Calendar.MINUTE)
@@ -67,7 +63,7 @@ class LogTimeDialog(private val project: Project, commitMessage: String) : Dialo
                 row {
                     comment(
                         "No API token configured.<br>" +
-                        "Go to <b>Settings → Tools → Clockify</b> to add your token."
+                                "Go to <b>Settings → Tools → Clockify</b> to add your token."
                     )
                 }
                 row {
@@ -101,9 +97,7 @@ class LogTimeDialog(private val project: Project, commitMessage: String) : Dialo
             row("Title:") {
                 cell(titleField).resizableColumn().align(AlignX.FILL)
             }
-            row("Note:") {
-                cell(JBScrollPane(noteArea)).resizableColumn()
-            }
+            row("Note:") { cell(noteArea).resizableColumn().align(AlignX.FILL) }
             separator()
             row("Workspace:") { cell(workspaceCombo).resizableColumn() }
             row("Project:") { cell(projectCombo).resizableColumn() }
@@ -146,7 +140,8 @@ class LogTimeDialog(private val project: Project, commitMessage: String) : Dialo
                     val sel = workspaceCombo.selectedItem as? WorkspaceItem
                     if (sel != null) loadProjects(token, sel.id, preselectId = savedState.projectId)
                 }, modality)
-            } catch (_: Exception) { /* combos stay as-is on network failure */ }
+            } catch (_: Exception) { /* combos stay as-is on network failure */
+            }
         }
     }
 
@@ -173,7 +168,8 @@ class LogTimeDialog(private val project: Project, commitMessage: String) : Dialo
                         taskCombo.model = DefaultComboBoxModel(arrayOf(TaskItem("", "(no task)")))
                     }
                 }, modality)
-            } catch (_: Exception) { /* combos stay as-is on network failure */ }
+            } catch (_: Exception) { /* combos stay as-is on network failure */
+            }
         }
     }
 
@@ -188,7 +184,8 @@ class LogTimeDialog(private val project: Project, commitMessage: String) : Dialo
                     taskCombo.model = DefaultComboBoxModel(items)
                     taskCombo.selectedIndex = 0
                 }, modality)
-            } catch (_: Exception) { /* silently ignore */ }
+            } catch (_: Exception) { /* silently ignore */
+            }
         }
     }
 
@@ -270,7 +267,9 @@ class LogTimeDialog(private val project: Project, commitMessage: String) : Dialo
                     .repositories
                     .firstOrNull()
                     ?.currentBranchName ?: ""
-            } catch (_: Throwable) { "" }
+            } catch (_: Throwable) {
+                ""
+            }
 
         private fun formatBranchName(branch: String): String =
             branch.substringAfterLast('/')
