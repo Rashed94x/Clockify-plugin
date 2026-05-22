@@ -1,11 +1,28 @@
 <idea-plugin>
     <id>no.paral.clockifyplugin</id>
-    <name>Clockify</name>
-    <vendor>Paral</vendor>
+    <name>Clockify Integration</name>
+    <vendor url="https://github.com/Rashed94x/Clockify-plugin" email="rashed.rajab.rr@gmail.com">Paral</vendor>
     <description><![CDATA[
-        Log time to Clockify directly from your JetBrains IDE.
-        Configure your API token and default project in Settings → Tools → Clockify,
-        then log time after each commit or push via the automatic dialog.
+        <p>Log time to <a href="https://clockify.me">Clockify</a> directly from your JetBrains IDE — no context switching required.</p>
+
+        <h3>Features</h3>
+        <ul>
+            <li><b>Auto-prompt after push</b> — a dialog appears after each successful Git push so you can log time without breaking your flow.</li>
+            <li><b>Tool window</b> — log time at any moment from the Clockify sidebar panel.</li>
+            <li><b>Pre-filled from Git</b> — the time entry description is pre-populated with your latest commit message.</li>
+            <li><b>Workspace &amp; project picker</b> — select your workspace, project, and task from live dropdowns backed by the Clockify API.</li>
+            <li><b>Secure token storage</b> — your API token is stored in the IDE's built-in credential safe, never in plain text.</li>
+        </ul>
+
+        <h3>Getting started</h3>
+        <ol>
+            <li>Open <b>Settings → Tools → Clockify Integration</b>.</li>
+            <li>Paste your Clockify API token (found at <i>clockify.me → Profile → API</i>) and click <b>Validate</b>.</li>
+            <li>Select your default workspace and project.</li>
+            <li>Push a commit — the log-time dialog will appear automatically.</li>
+        </ol>
+
+        <p><i>This is an unofficial, community-made plugin. It is not affiliated with, endorsed by, or created by Clockify / CAKE.com.</i></p>
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
@@ -17,7 +34,7 @@
                 parentId="tools"
                 instance="no.paral.clockifyplugin.settings.ClockifySettingsConfigurable"
                 id="clockify.settings"
-                displayName="Clockify"/>
+                displayName="Clockify Integration"/>
 
         <notificationGroup
                 id="Clockify"

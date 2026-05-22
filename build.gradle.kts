@@ -1,3 +1,4 @@
+import org.jetbrains.changelog.Changelog
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
@@ -29,5 +30,12 @@ tasks {
         // Compatible with IntelliJ Platform 2024.1 (build 241) and all later versions
         sinceBuild.set("241")
         untilBuild.set("")
+        changeNotes.set(provider {
+            changelog.renderItem(
+                changelog.getOrNull(project.version.toString())
+                    ?: changelog.getLatest(),
+                Changelog.OutputType.HTML
+            )
+        })
     }
 }

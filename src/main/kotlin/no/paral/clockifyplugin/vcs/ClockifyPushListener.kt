@@ -13,8 +13,7 @@ import git4idea.repo.GitRepository
 class ClockifyPushListener(private val project: Project) : GitPushListener {
     override fun onCompleted(repository: GitRepository, pushResult: GitPushRepoResult) {
         if (pushResult.type != GitPushRepoResult.Type.SUCCESS) return
-        val trigger = ClockifyProjectSettings.getInstance(project).state.logTimeTrigger
-        if (trigger != ClockifyProjectSettings.LogTimeTrigger.AFTER_PUSH.name) return
+        if (!ClockifyProjectSettings.getInstance(project).state.logOnPush) return
         val commitMessage = latestCommitMessage(repository)
         ApplicationManager.getApplication().invokeLater {
             LogTimeDialog(project, commitMessage).show()

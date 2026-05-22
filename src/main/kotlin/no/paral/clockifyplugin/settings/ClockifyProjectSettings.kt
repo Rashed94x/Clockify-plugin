@@ -10,14 +10,12 @@ import com.intellij.openapi.project.Project
 @State(name = "ClockifyProjectSettings", storages = [Storage("clockify.xml")])
 class ClockifyProjectSettings : PersistentStateComponent<ClockifyProjectSettings.State> {
 
-    enum class LogTimeTrigger { AFTER_PUSH, AFTER_COMMIT }
-
     class State {
         var workspaceId: String = ""
         var workspaceName: String = ""
         var projectId: String = ""
         var projectName: String = ""
-        var logTimeTrigger: String = LogTimeTrigger.AFTER_PUSH.name
+        var logOnPush: Boolean = true
     }
 
     private var myState = State()

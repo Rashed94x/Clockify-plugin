@@ -111,7 +111,7 @@ class ClockifySettingsConfigurable(private val project: Project) : Configurable 
         val saved = ClockifyProjectSettings.getInstance(project).state
         if (saved.workspaceId != (panel.selectedWorkspaceItem?.id ?: "")) return true
         if (saved.projectId != (panel.selectedProjectItem?.id ?: "")) return true
-        return saved.logTimeTrigger != panel.currentTrigger.name
+        return saved.logOnPush != panel.currentLogOnPush
     }
 
     override fun apply() {
@@ -123,7 +123,7 @@ class ClockifySettingsConfigurable(private val project: Project) : Configurable 
         settings.state.workspaceName = ws?.name ?: ""
         settings.state.projectId = if (pr?.id.isNullOrBlank()) "" else pr.id
         settings.state.projectName = if (pr?.id.isNullOrBlank()) "" else pr.name
-        settings.state.logTimeTrigger = panel.currentTrigger.name
+        settings.state.logOnPush = panel.currentLogOnPush
     }
 
     override fun reset() {
@@ -134,13 +134,7 @@ class ClockifySettingsConfigurable(private val project: Project) : Configurable 
         val token = panel.token
         if (token != null) loadWorkspaces(token)
         else panel.setComboStatus("Enter and validate your API token first.")
-        panel.currentTrigger = try {
-            ClockifyProjectSettings.LogTimeTrigger.valueOf(
-                ClockifyProjectSettings.getInstance(project).state.logTimeTrigger
-            )
-        } catch (_: IllegalArgumentException) {
-            ClockifyProjectSettings.LogTimeTrigger.AFTER_PUSH
-        }
+        panel.currentLogOnPush = ClockifyProjectSettings.getInstance(project).state.logOnPush
         panel.resetTriggerPanel()
     }
 

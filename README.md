@@ -1,45 +1,58 @@
-# Clockify-plugin
+# Clockify Integration — JetBrains IDE Plugin
 
 ![Build](https://github.com/Rashed94x/Clockify-plugin/workflows/Build/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
 
-## Template ToDo list
-- [x] Create a new [IntelliJ Platform Plugin Template][template] project.
-- [ ] Get familiar with the [template documentation][template].
-- [ ] Adjust the [group](./gradle.properties), as well as the [id](./src/main/resources/META-INF/plugin.xml), [name](./src/main/resources/META-INF/plugin.xml), and [sources package](./src/main/kotlin).
-- [ ] Adjust the plugin [description](./src/main/resources/META-INF/plugin.xml) (see [Tips][docs:plugin-description]) and this README to describe what your plugin does.
-- [ ] Review the [Legal Agreements](https://plugins.jetbrains.com/docs/marketplace/legal-agreements.html?from=IJPluginTemplate).
-- [ ] [Publish a plugin manually](https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate) for the first time.
-- [ ] Set the `MARKETPLACE_ID` in the above README badges. You can obtain it once the plugin is published to JetBrains Marketplace.
-- [ ] Set the [Plugin Signing](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html?from=IJPluginTemplate) related [secrets](https://github.com/JetBrains/intellij-platform-plugin-template#environment-variables).
-- [ ] Set the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html?from=IJPluginTemplate).
-- [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified about releases containing new features and fixes.
+> **Unofficial plugin** — not affiliated with, endorsed by, or created by [Clockify](https://clockify.me) / CAKE.com.
 
-This Fancy IntelliJ Platform Plugin is going to be your implementation of the brilliant ideas that you have.
+Log time to [Clockify](https://clockify.me) directly from your JetBrains IDE. A dialog appears after each Git push so you can record your time without leaving the IDE.
+
+---
+
+## Features
+
+- **Auto-prompt after push** — triggered automatically on every successful Git push
+- **Clockify tool window** — log time manually at any point from the sidebar
+- **Pre-filled from Git** — description defaults to your latest commit message
+- **Workspace & project picker** — live dropdowns backed by the Clockify API
+- **Secure token storage** — API token stored in the IDE credential safe, never in plain text
+
+---
 
 ## Installation
 
-- Using the IDE built-in plugin system:
+**Via JetBrains Marketplace (recommended):**
 
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "Clockify-plugin"</kbd> >
-  <kbd>Install</kbd>
+`Settings / Preferences` → `Plugins` → `Marketplace` → search **"Clockify Integration"** → `Install`
 
-- Using JetBrains Marketplace:
+**Manually:**
 
-  Go to [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID) and install it by clicking the <kbd>Install to ...</kbd> button in case your IDE is running.
-
-  You can also download the [latest release](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID/versions) from JetBrains Marketplace and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
-
-- Manually:
-
-  Download the [latest release](https://github.com/Rashed94x/Clockify-plugin/releases/latest) and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
-
+1. Download the latest `.zip` from [Releases](https://github.com/Rashed94x/Clockify-plugin/releases/latest)
+2. `Settings / Preferences` → `Plugins` → `⚙` → `Install Plugin from Disk…`
 
 ---
-Plugin based on the [IntelliJ Platform Plugin Template][template].
 
-[template]: https://github.com/JetBrains/intellij-platform-plugin-template
-[docs:plugin-description]: https://plugins.jetbrains.com/docs/intellij/plugin-user-experience.html#plugin-description-and-presentation
+## Setup
+
+1. Open **Settings → Tools → Clockify Integration**
+2. Paste your Clockify API token — find it at *clockify.me → Profile → API*
+3. Click **Validate** to confirm the token and load your workspaces
+4. Select your default workspace and project
+5. Push a commit — the log-time dialog will appear automatically
+
+---
+
+## Building from source
+
+```bash
+./gradlew buildPlugin          # builds the distributable .zip
+./gradlew runIde               # runs the plugin in a sandboxed IDE instance
+./gradlew runPluginVerifier    # checks binary compatibility
+```
+
+Requires JDK 17+.
+
+---
+
+Plugin based on the [IntelliJ Platform Plugin Template](https://github.com/JetBrains/intellij-platform-plugin-template).

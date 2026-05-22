@@ -5,7 +5,7 @@ import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.components.JBPasswordField
 import com.intellij.ui.dsl.builder.Align
 import com.intellij.ui.dsl.builder.COLUMNS_LARGE
-import com.intellij.ui.dsl.builder.MutableProperty
+import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.columns
 import com.intellij.ui.dsl.builder.panel
 import java.awt.BorderLayout
@@ -30,7 +30,7 @@ class ClockifySettingsPanel {
     private var outerPanel: JComponent? = null
     private var projectDialogPanel: DialogPanel? = null
 
-    var currentTrigger = ClockifyProjectSettings.LogTimeTrigger.AFTER_PUSH
+    var currentLogOnPush: Boolean = true
     var isUpdatingCombos = false
 
     // ── Read accessors ────────────────────────────────────────────────────────
@@ -122,22 +122,10 @@ class ClockifySettingsPanel {
                 row { cell(cStatus) }
             }
             group("Automatic Trigger") {
-                buttonsGroup("Show log time dialog:") {
-                    row {
-                        radioButton("After push", ClockifyProjectSettings.LogTimeTrigger.AFTER_PUSH)
-                            .comment("Recommended — triggers once per push")
-                    }
-                    row {
-                        radioButton("After commit", ClockifyProjectSettings.LogTimeTrigger.AFTER_COMMIT)
-                            .comment("Triggers after every commit")
-                    }
-                }.bind(
-                    object : MutableProperty<ClockifyProjectSettings.LogTimeTrigger> {
-                        override fun get() = currentTrigger
-                        override fun set(value: ClockifyProjectSettings.LogTimeTrigger) { currentTrigger = value }
-                    },
-                    ClockifyProjectSettings.LogTimeTrigger::class.java
-                )
+                row {
+                    checkBox("Trigger log time popup after push")
+                        .bindSelected(::currentLogOnPush)
+                }
             }
         }.also { projectDialogPanel = it }
 
