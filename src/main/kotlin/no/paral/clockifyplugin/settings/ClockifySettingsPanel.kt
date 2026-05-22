@@ -2,10 +2,10 @@ package no.paral.clockifyplugin.settings
 
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogPanel
+import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBPasswordField
 import com.intellij.ui.dsl.builder.Align
 import com.intellij.ui.dsl.builder.COLUMNS_LARGE
-import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.columns
 import com.intellij.ui.dsl.builder.panel
 import java.awt.BorderLayout
@@ -29,8 +29,11 @@ class ClockifySettingsPanel {
     private var projectSettingsWrapper: JPanel? = null
     private var outerPanel: JComponent? = null
     private var projectDialogPanel: DialogPanel? = null
+    private var logOnPushCheckBox: JBCheckBox? = null
 
-    var currentLogOnPush: Boolean = true
+    var currentLogOnPush: Boolean
+        get() = logOnPushCheckBox?.isSelected ?: true
+        set(value) { logOnPushCheckBox?.isSelected = value }
     var isUpdatingCombos = false
 
     // ── Read accessors ────────────────────────────────────────────────────────
@@ -123,8 +126,9 @@ class ClockifySettingsPanel {
             }
             group("Automatic Trigger") {
                 row {
-                    checkBox("Trigger log time popup after push")
-                        .bindSelected(::currentLogOnPush)
+                    checkBox("Trigger log time popup after push").also { cb ->
+                        logOnPushCheckBox = cb.component
+                    }
                 }
             }
         }.also { projectDialogPanel = it }
@@ -160,6 +164,7 @@ class ClockifySettingsPanel {
         projectSettingsWrapper = null
         outerPanel = null
         projectDialogPanel = null
+        logOnPushCheckBox = null
     }
 
     // ── Data classes ──────────────────────────────────────────────────────────
